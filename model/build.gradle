@@ -1,0 +1,29 @@
+group 'com.mccorby'
+version '1.0-SNAPSHOT'
+
+apply plugin: 'java'
+apply plugin: 'kotlin'
+apply from: "${rootDir}/buildsystem/dependencies.gradle"
+
+sourceCompatibility = 1.8
+
+dependencies {
+    implementation kotlin_stdlib
+    implementation nd4j
+    implementation dl4j_core
+    implementation dl4j_nlp
+    implementation datavec
+    implementation slf4j
+    implementation jackson
+    implementation jackson_databind
+
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    testCompile kotlin_test
+}
+
+compileKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
+compileTestKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}

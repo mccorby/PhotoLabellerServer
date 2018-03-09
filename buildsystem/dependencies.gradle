@@ -1,0 +1,25 @@
+ext {
+    kotlin_version = "1.2.30"
+    nd4j_version = "0.9.1"
+    dl4j_version = "0.9.1"
+    datavec_version = "0.9.1"
+    arbiter_version = "0.9.1"
+    rl4j_version = "0.9.1"
+    jackon_kotlin_version = "2.9.0"
+    slf4j_version = "1.6.1"
+
+
+
+
+    kotlin_stdlib = "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    kotlin_test = "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
+    nd4j = "org.nd4j:nd4j-native-platform:$nd4j_version"
+    dl4j_core = "org.deeplearning4j:deeplearning4j-core:$dl4j_version"
+    dl4j_nlp = "org.deeplearning4j:deeplearning4j-nlp:$dl4j_version"
+    datavec = "org.datavec:datavec-data-codec:$datavec_version"
+    slf4j = "org.slf4j:slf4j-simple:$slf4j_version"
+
+    jackson = "com.fasterxml.jackson.module:jackson-module-kotlin:$jackon_kotlin_version"
+    jackson_databind = "com.fasterxml.jackson.core:jackson-databind:$jackon_kotlin_version"
+}
+

@@ -1,0 +1,45 @@
+apply from: "${rootDir}/buildsystem/dependencies.gradle"
+
+apply plugin: 'java'
+apply plugin: 'kotlin'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation kotlin_stdlib
+    implementation nd4j
+    implementation dl4j_core
+    implementation dl4j_nlp
+    implementation datavec
+    implementation slf4j
+    implementation jackson
+    implementation jackson_databind
+
+    implementation "org.eclipse.jetty:jetty-servlet:9.2.9.v20150224"
+    implementation "org.eclipse.jetty:jetty-server:9.2.9.v20150224"
+    implementation "org.eclipse.jetty:jetty-continuation:9.2.9.v20150224"
+    implementation "org.eclipse.jetty:jetty-webapp:9.2.9.v20150224"
+    implementation "org.eclipse.jetty:jetty-xml:9.2.9.v20150224"
+
+    implementation "org.glassfish.jersey.core:jersey-server:2.26"
+    implementation "org.glassfish.jersey.containers:jersey-container-servlet:2.26"
+    implementation "org.glassfish.jersey.media:jersey-media-json-jackson:2.26"
+    implementation "org.glassfish.jersey.connectors:jersey-apache-connector:2.26"
+    implementation "org.glassfish.jersey.ext:jersey-metainf-services:2.26"
+    compile 'org.glassfish.jersey.core:jersey-common:2.26'
+    compile 'org.glassfish.jersey.inject:jersey-hk2:2.26'
+
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+}
+
+compileKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
+compileTestKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}

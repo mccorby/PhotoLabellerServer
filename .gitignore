@@ -1,0 +1,21 @@
+# User-specific stuff:
+.gradle
+.idea/**/workspace.xml
+
+# Gradle:
+.idea/**/gradle.xml
+.idea/**/libraries
+
+### Kotlin template
+# Compiled class file
+*.class
+build
+*/out
+
+# Log file
+*.log
+
+# Package Files #
+*.jar
+/gradlew
+/gradlew.bat
