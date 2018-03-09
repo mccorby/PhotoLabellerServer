@@ -8,10 +8,10 @@ fun main(args: Array<String>) {
     val seed = 123
     val iterations = 1
     val numLabels = CifarLoader.NUM_LABELS
-    val saveFile = "cifar_federated"
+    val saveFile = "cifar_federated.zip"
 
-    val numEpochs = 1
-    val numSamples = 1000
+    val numEpochs = 50
+    val numSamples = 10000
 
     val config = SharedConfig(32, 3, 100)
     val trainer = CifarTrainer(config)

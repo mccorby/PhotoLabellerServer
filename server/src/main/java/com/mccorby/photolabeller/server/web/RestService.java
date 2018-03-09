@@ -5,6 +5,9 @@ import com.mccorby.photolabeller.server.FederatedServerImpl;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import java.io.File;
+import java.io.IOException;
 
 @Path("/service/federatedservice")
 public class RestService {
@@ -39,5 +42,21 @@ public class RestService {
     @Path("/gradient")
     public byte[] getGradient() {
         return FederatedServerImpl.getInstance().sendUpdatedGradient();
+    }
+
+    @GET
+    @Path("/model")
+    @Produces(MediaType.APPLICATION_OCTET_STREAM)
+    public Response getFile() {
+        File file = null;
+        try {
+            file = FederatedServerImpl.getInstance().getModelFile();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        Response.ResponseBuilder response = Response.ok(file);
+        response.header("Content-Disposition","attachment; filename=\"model.zip\"");
+        return response.build();
+
     }
 }

@@ -6,11 +6,10 @@ import com.mccorby.photolabeller.server.core.domain.model.GradientStrategy;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 /**
  * This object mocks what an actual server would do in a complete system
@@ -90,5 +89,12 @@ public class FederatedServerImpl implements FederatedServer {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public File getModelFile() throws IOException {
+        final Properties props = new Properties();
+        System.out.println(System.getProperty("user.dir"));
+        props.load(new FileInputStream("./server/local.properties"));
+        return new File(props.getProperty("model_dir") + "/cifar_federated.zip");
     }
 }
