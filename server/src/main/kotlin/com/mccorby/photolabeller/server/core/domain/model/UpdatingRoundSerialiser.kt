@@ -11,6 +11,10 @@ class UpdatingRoundSerialiser {
         jacksonObjectMapper().writeValue(File(path.toString()), updatingRound)
     }
 
+    fun toJson(updatingRound: UpdatingRound): String {
+        return jacksonObjectMapper().writeValueAsString(updatingRound)
+    }
+
     fun fromJson(jsonPath: Path): UpdatingRound {
         return jacksonObjectMapper().readValue(File(jsonPath.toString()))
     }

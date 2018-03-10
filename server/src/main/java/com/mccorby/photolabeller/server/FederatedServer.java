@@ -17,4 +17,6 @@ public interface FederatedServer {
     UpdatingRound getUpdatingRound();
 
     File getModelFile();
+
+    String getUpdatingRoundAsJson(UpdatingRound updatingRound);
 }

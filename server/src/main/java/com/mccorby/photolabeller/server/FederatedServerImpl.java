@@ -139,4 +139,9 @@ public class FederatedServerImpl implements FederatedServer {
     public File getModelFile() {
         return new File(Paths.get(properties.getProperty("model_dir"), "/cifar_federated.zip").toString());
     }
+
+    @Override
+    public String getUpdatingRoundAsJson(UpdatingRound updatingRound) {
+        return updatingRoundSerialiser.toJson(updatingRound);
+    }
 }

@@ -2,6 +2,7 @@ package com.mccorby.photolabeller.server.web;
 
 
 import com.mccorby.photolabeller.server.FederatedServerImpl;
+import com.mccorby.photolabeller.server.core.domain.model.UpdatingRound;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -57,8 +58,9 @@ public class RestService {
 
     @GET
     @Path("/currentRound")
-    @Produces(MediaType.TEXT_PLAIN)
+    @Produces(MediaType.APPLICATION_JSON)
     public String getCurrentRound() {
-        return FederatedServerImpl.getInstance().getUpdatingRound().toString();
+        UpdatingRound updatingRound = FederatedServerImpl.getInstance().getUpdatingRound();
+        return FederatedServerImpl.getInstance().getUpdatingRoundAsJson(updatingRound);
     }
 }
