@@ -48,15 +48,17 @@ public class RestService {
     @Path("/model")
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     public Response getFile() {
-        File file = null;
-        try {
-            file = FederatedServerImpl.getInstance().getModelFile();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        File file = FederatedServerImpl.getInstance().getModelFile();
         Response.ResponseBuilder response = Response.ok(file);
         response.header("Content-Disposition","attachment; filename=\"model.zip\"");
         return response.build();
 
+    }
+
+    @GET
+    @Path("/currentRound")
+    @Produces(MediaType.TEXT_PLAIN)
+    public String getCurrentRound() {
+        return FederatedServerImpl.getInstance().getUpdatingRound().toString();
     }
 }

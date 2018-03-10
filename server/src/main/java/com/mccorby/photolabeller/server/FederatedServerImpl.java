@@ -1,15 +1,17 @@
 package com.mccorby.photolabeller.server;
 
 
-import com.mccorby.photolabeller.server.core.domain.model.FederatedModel;
-import com.mccorby.photolabeller.server.core.domain.model.GradientStrategy;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mccorby.photolabeller.server.core.domain.model.*;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.*;
 
 /**
  * This object mocks what an actual server would do in a complete system
@@ -19,17 +21,32 @@ import java.util.Properties;
  */
 public class FederatedServerImpl implements FederatedServer {
 
+    // TODO Inject
     private static FederatedServerImpl sInstance;
+    private static Properties properties;
+    private static UpdatingRoundSerialiser updatingRoundSerialiser;
+
     private List<FederatedModel> registeredModels;
     private INDArray averageFlattenGradient;
     private GradientStrategy strategy;
     private Logger logger;
     private int models;
+    private UpdatingRound currentUpdatingRound;
 
     public static FederatedServerImpl getInstance() {
         if (sInstance == null) {
             Logger logger = System.out::println;
             sInstance = new FederatedServerImpl(new AverageGradientStrategy(logger), logger);
+            if (properties == null) {
+                properties = new Properties();
+                try {
+                    properties.load(new FileInputStream("./server/local.properties"));
+                } catch (IOException e) {
+                    logger.log("Could not load properties file. Aborting");
+                    e.printStackTrace();
+                }
+            }
+            updatingRoundSerialiser = new UpdatingRoundSerialiser();
         }
 
         return sInstance;
@@ -91,10 +108,35 @@ public class FederatedServerImpl implements FederatedServer {
         }
     }
 
-    public File getModelFile() throws IOException {
-        final Properties props = new Properties();
-        System.out.println(System.getProperty("user.dir"));
-        props.load(new FileInputStream("./server/local.properties"));
-        return new File(props.getProperty("model_dir") + "/cifar_federated.zip");
+    @Override
+    public UpdatingRound getUpdatingRound() {
+        // TODO If we're holding the value of the current round, we could use it in the generator!
+        // If the server restarts then read the json file
+        Path path = Paths.get(properties.getProperty("model_dir"), "/currentRound.json");
+        if (currentUpdatingRound == null) {
+            if (Files.exists(path)) {
+                currentUpdatingRound = updatingRoundSerialiser.fromJson(path);
+            }
+        }
+
+        long timeWindow = Long.valueOf(properties.getProperty("time_window"));
+        int minUpdates = Integer.valueOf(properties.getProperty("min_updates"));
+
+        UpdatingRoundGenerator generator = new UpdatingRoundGenerator(currentUpdatingRound, timeWindow, minUpdates);
+        UpdatingRound updatingRound = generator.createUpdatingRound();
+        if (!updatingRound.equals(currentUpdatingRound)) {
+            currentUpdatingRound = updatingRound;
+            saveUpdatingRound(path);
+        }
+        return updatingRound;
+    }
+
+    private void saveUpdatingRound(Path path) {
+        updatingRoundSerialiser.toJson(path, currentUpdatingRound);
+    }
+
+    @Override
+    public File getModelFile() {
+        return new File(Paths.get(properties.getProperty("model_dir"), "/cifar_federated.zip").toString());
     }
 }

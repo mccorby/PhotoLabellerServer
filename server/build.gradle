@@ -9,6 +9,10 @@ repositories {
     mavenCentral()
 }
 
+sourceSets {
+    test.java.srcDirs += 'src/test/kotlin'
+}
+
 dependencies {
     implementation kotlin_stdlib
     implementation nd4j
@@ -34,6 +38,8 @@ dependencies {
     implementation jersey_hk
 
     implementation kotlin_stdlib
+
+    testImplementation kotlin_test
 }
 
 compileKotlin {
