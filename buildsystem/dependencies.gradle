@@ -1,22 +1,25 @@
 ext {
-    kotlin_version = "1.2.30"
-    nd4j_version = "0.9.1"
-    dl4j_version = "0.9.1"
-    datavec_version = "0.9.1"
-    arbiter_version = "0.9.1"
-    rl4j_version = "0.9.1"
+    kotlin_version = "1.2.31"
+    nd4j_version = "0.8.0"
+    dl4j_version = "0.8.0"
+    datavec_version = "0.8.0"
     jackon_kotlin_version = "2.9.0"
     slf4j_version = "1.6.1"
     jetty_version = "9.2.9.v20150224"
     jersey_version = "2.26"
+    junit_version = "4.12"
+    mockito_version = "1.10.19"
+    kotlin_mockito_version = '1.5.0'
 
     kotlin_stdlib = "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     kotlin_test = "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
+    junit = "junit:junit:$junit_version"
     nd4j = "org.nd4j:nd4j-native-platform:$nd4j_version"
     dl4j_core = "org.deeplearning4j:deeplearning4j-core:$dl4j_version"
     dl4j_nlp = "org.deeplearning4j:deeplearning4j-nlp:$dl4j_version"
     datavec = "org.datavec:datavec-data-codec:$datavec_version"
     slf4j = "org.slf4j:slf4j-simple:$slf4j_version"
+    mockito = "com.nhaarman:mockito-kotlin:$kotlin_mockito_version"
 
     jackson = "com.fasterxml.jackson.module:jackson-module-kotlin:$jackon_kotlin_version"
     jackson_databind = "com.fasterxml.jackson.core:jackson-databind:$jackon_kotlin_version"
@@ -34,6 +37,7 @@ ext {
     jersey_metainf_services = "org.glassfish.jersey.ext:jersey-metainf-services:$jersey_version"
     jersey_common = "org.glassfish.jersey.core:jersey-common:$jersey_version"
     jersey_hk = "org.glassfish.jersey.inject:jersey-hk2:$jersey_version"
+    jersey_multipart = "org.glassfish.jersey.media:jersey-media-multipart:$jersey_version"
 
 }
 
