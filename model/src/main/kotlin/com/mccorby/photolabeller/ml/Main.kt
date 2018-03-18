@@ -11,7 +11,7 @@ fun main(args: Array<String>) {
     val saveFile = "cifar_federated.zip"
 
     val numEpochs = 50
-    val numSamples = 10000
+    val numSamples = 1000
 
     val config = SharedConfig(32, 3, 100)
     val trainer = CifarTrainer(config)
@@ -24,4 +24,5 @@ fun main(args: Array<String>) {
         println("Saving model to ${args[0]}")
         trainer.saveModel(model, args[0] + "/$saveFile")
     }
+
 }
