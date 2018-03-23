@@ -20,12 +20,12 @@ import java.io.File
 
 class CifarTrainer(private val config: SharedConfig) {
 
-    private val imageTransform = ColorConversionTransform(CV_BGR2RGB)
+//    private val imageTransform = ColorConversionTransform(CV_BGR2RGB)
 
     fun createModel(seed: Int, iterations: Int, numLabels: Int): MultiLayerNetwork {
         val modelConf = NeuralNetConfiguration.Builder()
                 .seed(seed)
-                .cacheMode(CacheMode.DEVICE)
+//                .cacheMode(CacheMode.DEVICE)
                 .updater(Updater.ADAM)
                 .iterations(iterations)
                 .gradientNormalization(GradientNormalization.RenormalizeL2PerLayer) // normalize to prevent vanishing or exploding gradients
@@ -86,7 +86,7 @@ class CifarTrainer(private val config: SharedConfig) {
         val cifar = CifarDataSetIterator(config.batchSize, numSamples,
                 intArrayOf(config.imageSize, config.imageSize, config.channels),
                 CifarLoader.NUM_LABELS,
-                imageTransform,
+                null,
                 false,
                 true)
 
@@ -102,7 +102,7 @@ class CifarTrainer(private val config: SharedConfig) {
         val cifarEval = CifarDataSetIterator(config.batchSize, numSamples,
                 intArrayOf(config.imageSize, config.imageSize, config.channels),
                 CifarLoader.NUM_LABELS,
-                imageTransform,
+                null,
                 false,
                 false)
 

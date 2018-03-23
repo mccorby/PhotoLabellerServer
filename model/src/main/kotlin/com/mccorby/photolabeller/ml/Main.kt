@@ -26,8 +26,8 @@ fun main(args: Array<String>) {
         val trainer = CifarTrainer(config)
         var model = trainer.createModel(seed, iterations, numLabels)
         model = trainer.train(model, numSamples, numEpochs)
-        val eval = trainer.eval(model, numSamples)
-        println(eval.stats())
+//        val eval = trainer.eval(model, numSamples)
+//        println(eval.stats())
 
         if (args.isNotEmpty() && args[1].isNotEmpty()) {
             println("Saving model to ${args[1]}")
