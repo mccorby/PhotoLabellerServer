@@ -1,21 +1,26 @@
 package com.mccorby.photolabeller.ml.trainer
 
+import org.bytedeco.javacpp.opencv_imgproc.CV_BGR2RGB
+import org.datavec.image.loader.CifarLoader
+import org.datavec.image.transform.ColorConversionTransform
+import org.deeplearning4j.datasets.iterator.impl.CifarDataSetIterator
+import org.deeplearning4j.eval.Evaluation
 import org.deeplearning4j.nn.api.OptimizationAlgorithm
 import org.deeplearning4j.nn.conf.*
 import org.deeplearning4j.nn.conf.inputs.InputType
 import org.deeplearning4j.nn.conf.layers.*
-import org.deeplearning4j.nn.weights.WeightInit
-import org.nd4j.linalg.activations.Activation
-import org.nd4j.linalg.lossfunctions.LossFunctions
-import org.deeplearning4j.datasets.iterator.impl.CifarDataSetIterator
-import org.deeplearning4j.eval.Evaluation
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork
+import org.deeplearning4j.nn.weights.WeightInit
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener
 import org.deeplearning4j.util.ModelSerializer
+import org.nd4j.linalg.activations.Activation
+import org.nd4j.linalg.lossfunctions.LossFunctions
 import java.io.File
 
 
 class CifarTrainer(private val config: SharedConfig) {
+
+    private val imageTransform = ColorConversionTransform(CV_BGR2RGB)
 
     fun createModel(seed: Int, iterations: Int, numLabels: Int): MultiLayerNetwork {
         val modelConf = NeuralNetConfiguration.Builder()
@@ -78,9 +83,10 @@ class CifarTrainer(private val config: SharedConfig) {
 
     fun train(model: MultiLayerNetwork, numSamples: Int, epochs: Int): MultiLayerNetwork {
         model.setListeners(ScoreIterationListener(50))
-
         val cifar = CifarDataSetIterator(config.batchSize, numSamples,
                 intArrayOf(config.imageSize, config.imageSize, config.channels),
+                CifarLoader.NUM_LABELS,
+                imageTransform,
                 false,
                 true)
 
@@ -95,6 +101,8 @@ class CifarTrainer(private val config: SharedConfig) {
     fun eval(model: MultiLayerNetwork, numSamples: Int): Evaluation {
         val cifarEval = CifarDataSetIterator(config.batchSize, numSamples,
                 intArrayOf(config.imageSize, config.imageSize, config.channels),
+                CifarLoader.NUM_LABELS,
+                imageTransform,
                 false,
                 false)
 
