@@ -1,9 +1,9 @@
 package com.mccorby.photolabeller.server;
 
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.annotations.VisibleForTesting;
 import com.mccorby.photolabeller.server.core.domain.model.*;
+import com.mccorby.photolabeller.server.core.domain.repository.ServerRepository;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 
@@ -32,6 +32,7 @@ public class FederatedServerImpl implements FederatedServer {
     private Logger logger;
     private int models;
     private UpdatingRound currentUpdatingRound;
+    private ServerRepository repository;
 
     public static FederatedServerImpl getInstance() {
         if (sInstance == null) {
@@ -52,9 +53,18 @@ public class FederatedServerImpl implements FederatedServer {
         return sInstance;
     }
 
-    private FederatedServerImpl(GradientStrategy strategy, Logger logger) {
+    @VisibleForTesting
+    FederatedServerImpl(GradientStrategy strategy, Logger logger) {
         this.strategy = strategy;
         this.logger = logger;
+    }
+
+    @Override
+    public void initialise(ServerRepository repository, GradientStrategy gradientStrategy, UpdatingRoundSerialiser roundSerialiser, Logger logger) {
+        this.logger = logger;
+        this.strategy = gradientStrategy;
+        updatingRoundSerialiser = roundSerialiser;
+        this.repository = repository;
     }
 
     @Override
@@ -86,27 +96,28 @@ public class FederatedServerImpl implements FederatedServer {
         return outputStream.toByteArray();
     }
 
-    public void pushGradient(byte[] clientGradient) {
+    public void pushGradient(InputStream clientGradient, int samples) {
         logger.log("Gradient received " + (clientGradient != null ? clientGradient.toString() : "null"));
         try {
             assert clientGradient != null;
-            INDArray gradient = Nd4j.fromByteArray(clientGradient);
+
+            INDArray gradient = Nd4j.read(clientGradient);
             processGradient(gradient);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    @Override
-    public void pushGradient(InputStream is) {
-        logger.log("Gradient received " + (is != null ? is.toString() : "null"));
-        try {
-            INDArray gradient = Nd4j.read(is);
-            processGradient(gradient);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+//    @Override
+//    public void pushGradient(byte[] is) {
+//        logger.log("Gradient received " + (is != null ? is.toString() : "null"));
+//        try {
+//            INDArray gradient = Nd4j.fromByteArray(is);
+//            processGradient(gradient);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//    }
 
     @Override
     public UpdatingRound getUpdatingRound() {

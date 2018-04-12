@@ -36,10 +36,13 @@ dependencies {
     implementation jersey_metainf_services
     implementation jersey_common
     implementation jersey_hk
+    implementation jersey_multipart
 
     implementation kotlin_stdlib
 
     testImplementation kotlin_test
+    testImplementation mockito
+    testImplementation junit
 }
 
 compileKotlin {
