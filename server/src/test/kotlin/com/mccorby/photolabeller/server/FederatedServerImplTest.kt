@@ -2,8 +2,11 @@ package com.mccorby.photolabeller.server
 
 import com.mccorby.photolabeller.server.core.domain.model.GradientStrategy
 import com.mccorby.photolabeller.server.core.domain.repository.ServerRepository
+import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.mock
+import com.nhaarman.mockito_kotlin.verify
 import org.junit.Test
+import java.io.InputStream
 
 internal class FederatedServerImplTest {
 
@@ -13,7 +16,7 @@ internal class FederatedServerImplTest {
         val averageStrategy = mock<GradientStrategy>()
         val logger = mock<Logger>()
         val repository = mock<ServerRepository>()
-        val gradientByteArray = byteArrayOf()
+        val gradientByteArray = mock<InputStream>()
         val samples = 10
 
         // When
@@ -25,6 +28,6 @@ internal class FederatedServerImplTest {
         cut.pushGradient(gradientByteArray, samples)
 
         // Then
-        repository.storeClientUpdate(gradientByteArray, samples)
+        verify(repository).storeClientUpdate(any(), samples)
     }
 }

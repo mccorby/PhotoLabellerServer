@@ -4,4 +4,5 @@ import java.io.File
 
 interface FileDataSource {
     fun storeUpdate(gradientByteArray: ByteArray): File
+    fun clearUpdates()
 }

@@ -23,14 +23,12 @@ public class FederatedServerImpl implements FederatedServer {
 
     // TODO Inject
     private static FederatedServerImpl sInstance;
-    private static Properties properties;
+    private static Properties sProperties;
     private static UpdatingRoundSerialiser updatingRoundSerialiser;
 
-    private List<FederatedModel> registeredModels;
     private INDArray averageFlattenGradient;
     private GradientStrategy strategy;
     private Logger logger;
-    private int models;
     private UpdatingRound currentUpdatingRound;
     private ServerRepository repository;
 
@@ -38,12 +36,12 @@ public class FederatedServerImpl implements FederatedServer {
         if (sInstance == null) {
             Logger logger = System.out::println;
             sInstance = new FederatedServerImpl(new AverageGradientStrategy(logger), logger);
-            if (properties == null) {
-                properties = new Properties();
+            if (sProperties == null) {
+                sProperties = new Properties();
                 try {
-                    properties.load(new FileInputStream("./server/local.properties"));
+                    sProperties.load(new FileInputStream("./server/local.properties"));
                 } catch (IOException e) {
-                    logger.log("Could not load properties file. Aborting");
+                    logger.log("Could not load sProperties file. Aborting");
                     e.printStackTrace();
                 }
             }
@@ -60,25 +58,18 @@ public class FederatedServerImpl implements FederatedServer {
     }
 
     @Override
-    public void initialise(ServerRepository repository, GradientStrategy gradientStrategy, UpdatingRoundSerialiser roundSerialiser, Logger logger) {
+    public void initialise(ServerRepository repository,
+                           GradientStrategy gradientStrategy,
+                           RoundController roundController,
+                           UpdatingRoundSerialiser roundSerialiser,
+                           Logger logger,
+                           Properties properties) {
         this.logger = logger;
         this.strategy = gradientStrategy;
         updatingRoundSerialiser = roundSerialiser;
         this.repository = repository;
+        sProperties = properties;
     }
-
-    @Override
-    public Integer registerModel(FederatedModel model) {
-        // This is only for Push notifications of changes to the gradients
-        if (registeredModels == null) {
-            registeredModels = new ArrayList<>();
-        }
-        if (model != null) {
-            registeredModels.add(model);
-        }
-        return ++models;
-    }
-
 
     private void processGradient(INDArray gradient) {
         averageFlattenGradient = strategy.processGradient(averageFlattenGradient, gradient);
@@ -123,15 +114,15 @@ public class FederatedServerImpl implements FederatedServer {
     public UpdatingRound getUpdatingRound() {
         // TODO If we're holding the value of the current round, we could use it in the generator!
         // If the server restarts then read the json file
-        Path path = Paths.get(properties.getProperty("model_dir"), "/currentRound.json");
+        Path path = Paths.get(sProperties.getProperty("model_dir"), "/currentRound.json");
         if (currentUpdatingRound == null) {
             if (Files.exists(path)) {
                 currentUpdatingRound = updatingRoundSerialiser.fromJson(path);
             }
         }
 
-        long timeWindow = Long.valueOf(properties.getProperty("time_window"));
-        int minUpdates = Integer.valueOf(properties.getProperty("min_updates"));
+        long timeWindow = Long.valueOf(sProperties.getProperty("time_window"));
+        int minUpdates = Integer.valueOf(sProperties.getProperty("min_updates"));
 
         UpdatingRoundGenerator generator = new UpdatingRoundGenerator(currentUpdatingRound, timeWindow, minUpdates);
         UpdatingRound updatingRound = generator.createUpdatingRound();
@@ -148,7 +139,7 @@ public class FederatedServerImpl implements FederatedServer {
 
     @Override
     public File getModelFile() {
-        return new File(Paths.get(properties.getProperty("model_dir"), "/cifar_federated.zip").toString());
+        return new File(Paths.get(sProperties.getProperty("model_dir"), "/cifar_federated.zip").toString());
     }
 
     @Override

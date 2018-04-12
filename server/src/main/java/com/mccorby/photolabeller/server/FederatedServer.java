@@ -1,19 +1,21 @@
 package com.mccorby.photolabeller.server;
 
-import com.mccorby.photolabeller.server.core.domain.model.FederatedModel;
-import com.mccorby.photolabeller.server.core.domain.model.GradientStrategy;
-import com.mccorby.photolabeller.server.core.domain.model.UpdatingRound;
-import com.mccorby.photolabeller.server.core.domain.model.UpdatingRoundSerialiser;
+import com.mccorby.photolabeller.server.core.domain.model.*;
 import com.mccorby.photolabeller.server.core.domain.repository.ServerRepository;
+import org.nd4j.linalg.api.ops.impl.transforms.Round;
 
 import java.io.File;
 import java.io.InputStream;
+import java.util.Properties;
 
 public interface FederatedServer {
 
-    void initialise(ServerRepository repository, GradientStrategy gradientStrategy, UpdatingRoundSerialiser roundSerialiser, Logger logger);
-
-    Integer registerModel(FederatedModel model);
+    void initialise(ServerRepository repository,
+                    GradientStrategy gradientStrategy,
+                    RoundController roundController,
+                    UpdatingRoundSerialiser roundSerialiser,
+                    Logger logger,
+                    Properties properties);
 
     byte[] sendUpdatedGradient();
 

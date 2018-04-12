@@ -3,36 +3,43 @@ package com.mccorby.photolabeller.server.web;
 
 import com.mccorby.photolabeller.server.*;
 import com.mccorby.photolabeller.server.core.datasource.*;
-import com.mccorby.photolabeller.server.core.domain.model.GradientStrategy;
-import com.mccorby.photolabeller.server.core.domain.model.UpdatingRound;
-import com.mccorby.photolabeller.server.core.domain.model.UpdatingRoundSerialiser;
+import com.mccorby.photolabeller.server.core.domain.model.*;
 import com.mccorby.photolabeller.server.core.domain.repository.ServerRepository;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.io.File;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.file.Paths;
+import java.util.Properties;
 
 @Path("/service/federatedservice")
 public class RestService {
 
     private static FederatedServer federatedServer;
 
-    public RestService() {
+    public RestService() throws IOException {
         if (federatedServer == null) {
             // TODO Inject!
-            java.nio.file.Path roundRootPath = Paths.get("/Users/jco59/ML/TechConf-2018/save");
-            FileDataSource fileDataSource = new FileDataSourceImpl(roundRootPath);
+            Properties properties = new Properties();
+            properties.load(new FileInputStream("./server/local.properties"));
+
+            java.nio.file.Path rootPath = Paths.get(properties.getProperty("model_dir"));
+            FileDataSource fileDataSource = new FileDataSourceImpl(rootPath);
             MemoryDataSource memoryDataSource = new MemoryDataSourceImpl();
             ServerRepository repository = new ServerRepositoryImpl(fileDataSource, memoryDataSource);
             Logger logger = System.out::println;
             GradientStrategy gradientStrategy = new AverageGradientStrategy(logger);
             UpdatingRoundSerialiser roundSerialiser = new UpdatingRoundSerialiser();
+
+            UpdatingRoundGenerator generator = new UpdatingRoundGenerator(null,
+                    Long.valueOf(properties.getProperty("time_window")),
+                    Integer.valueOf(properties.getProperty("min_updates")));
+            RoundController roundController = new BasicRoundController(repository, generator);
+
             federatedServer = FedeServerImpl.Companion.getInstance();
-            federatedServer.initialise(repository, gradientStrategy, roundSerialiser, logger);
+            federatedServer.initialise(repository, gradientStrategy, roundController, roundSerialiser, logger, properties);
         }
     }
 
@@ -43,12 +50,6 @@ public class RestService {
         return "yes";
     }
 
-    @GET
-    @Path(("/register"))
-    public Integer register() {
-        return FederatedServerImpl.getInstance().registerModel(null);
-    }
-
     @POST
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Path("/gradient")
@@ -57,7 +58,6 @@ public class RestService {
             return false;
         } else {
             FedeServerImpl.Companion.getInstance().pushGradient(is, samples);
-//            FederatedServerImpl.getInstance().pushGradient(is, samples);
             return true;
         }
     }

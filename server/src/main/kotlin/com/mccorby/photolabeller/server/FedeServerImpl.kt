@@ -1,40 +1,58 @@
 package com.mccorby.photolabeller.server
 
-import com.mccorby.photolabeller.server.core.domain.model.FederatedModel
-import com.mccorby.photolabeller.server.core.domain.model.GradientStrategy
-import com.mccorby.photolabeller.server.core.domain.model.UpdatingRound
-import com.mccorby.photolabeller.server.core.domain.model.UpdatingRoundSerialiser
+import com.mccorby.photolabeller.server.core.domain.model.*
 import com.mccorby.photolabeller.server.core.domain.repository.ServerRepository
 import org.jcodec.common.IOUtils
 import java.io.File
 import java.io.InputStream
+import java.util.*
 
 class FedeServerImpl : FederatedServer {
 
     lateinit var repository: ServerRepository
     lateinit var gradientStrategy: GradientStrategy
+    lateinit var roundController: RoundController
     lateinit var roundSerialiser: UpdatingRoundSerialiser
+    lateinit var properties: Properties
     lateinit var logger: Logger
+
+    lateinit var currentRound: UpdatingRound
 
     companion object {
         var instance = FedeServerImpl()
     }
 
-    override fun initialise(repository: ServerRepository, gradientStrategy: GradientStrategy, roundSerialiser: UpdatingRoundSerialiser, logger: Logger) {
+    override fun initialise(repository: ServerRepository,
+                            gradientStrategy: GradientStrategy,
+                            roundController: RoundController,
+                            roundSerialiser: UpdatingRoundSerialiser,
+                            logger: Logger,
+                            properties: Properties) {
         instance.let {
             it.repository = repository
             it.gradientStrategy = gradientStrategy
+            it.roundController = roundController
             it.logger = logger
             it.roundSerialiser = roundSerialiser
+            it.properties = properties
+
+            currentRound = initialiseCurrentRound()
         }
     }
 
-    override fun pushGradient(clientGradient: InputStream, samples: Int) {
-        repository.storeClientUpdate(IOUtils.toByteArray(clientGradient), samples)
+    private fun initialiseCurrentRound(): UpdatingRound {
+        // TODO repository to init the current round
+        return UpdatingRound("", 1, 2, 3)
     }
 
-    override fun registerModel(model: FederatedModel?): Int {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun pushGradient(clientGradient: InputStream, samples: Int) {
+        // TODO This logic to UseCase when created
+        repository.storeClientUpdate(IOUtils.toByteArray(clientGradient), samples)
+        roundController.onNewClientUpdate()
+        when (roundController.checkCurrentRound(currentRound)) {
+            true -> Unit
+            false -> roundController.endRound()
+        }
     }
 
     override fun sendUpdatedGradient(): ByteArray {
