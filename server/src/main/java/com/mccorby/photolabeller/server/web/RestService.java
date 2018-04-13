@@ -12,7 +12,6 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.*;
-import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Properties;
 
@@ -41,7 +40,7 @@ public class RestService {
 
             RoundController roundController = new BasicRoundController(repository, currentUpdatingRound, timeWindow, minUpdates);
 
-            federatedServer = FedeServerImpl.Companion.getInstance();
+            federatedServer = FederatedServerImpl.Companion.getInstance();
             federatedServer.initialise(repository, gradientStrategy, roundController, logger, properties);
         }
     }

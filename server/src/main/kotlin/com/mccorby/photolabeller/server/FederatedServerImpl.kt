@@ -7,7 +7,7 @@ import java.io.File
 import java.io.InputStream
 import java.util.*
 
-class FedeServerImpl : FederatedServer {
+class FederatedServerImpl : FederatedServer {
 
     lateinit var repository: ServerRepository
     lateinit var gradientStrategy: GradientStrategy
@@ -16,7 +16,7 @@ class FedeServerImpl : FederatedServer {
     lateinit var logger: Logger
 
     companion object {
-        var instance = FedeServerImpl()
+        var instance = FederatedServerImpl()
     }
 
     override fun initialise(repository: ServerRepository,
