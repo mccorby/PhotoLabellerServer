@@ -11,6 +11,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.*;
+import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Properties;
 
@@ -33,10 +34,19 @@ public class RestService {
             GradientStrategy gradientStrategy = new AverageGradientStrategy(logger);
             UpdatingRoundSerialiser roundSerialiser = new UpdatingRoundSerialiser();
 
-            UpdatingRoundGenerator generator = new UpdatingRoundGenerator(null,
-                    Long.valueOf(properties.getProperty("time_window")),
-                    Integer.valueOf(properties.getProperty("min_updates")));
-            RoundController roundController = new BasicRoundController(repository, generator);
+            UpdatingRound currentUpdatingRound = null;
+            java.nio.file.Path path = Paths.get(properties.getProperty("model_dir"), "/currentRound.json");
+            if (Files.exists(path)) {
+                currentUpdatingRound = roundSerialiser.fromJson(path);
+            }
+
+            long timeWindow = Long.valueOf(properties.getProperty("time_window"));
+            int minUpdates = Integer.valueOf(properties.getProperty("min_updates"));
+
+            UpdatingRoundGenerator generator = new UpdatingRoundGenerator(currentUpdatingRound,
+                    timeWindow,
+                    minUpdates);
+            RoundController roundController = new BasicRoundController(repository, currentUpdatingRound, timeWindow, minUpdates);
 
             federatedServer = FedeServerImpl.Companion.getInstance();
             federatedServer.initialise(repository, gradientStrategy, roundController, roundSerialiser, logger, properties);
@@ -75,7 +85,7 @@ public class RestService {
     public Response getFile() {
         File file = FederatedServerImpl.getInstance().getModelFile();
         Response.ResponseBuilder response = Response.ok(file);
-        response.header("Content-Disposition","attachment; filename=\"model.zip\"");
+        response.header("Content-Disposition", "attachment; filename=\"model.zip\"");
         return response.build();
 
     }

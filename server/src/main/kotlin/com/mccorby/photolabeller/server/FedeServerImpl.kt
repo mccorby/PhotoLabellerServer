@@ -16,8 +16,6 @@ class FedeServerImpl : FederatedServer {
     lateinit var properties: Properties
     lateinit var logger: Logger
 
-    lateinit var currentRound: UpdatingRound
-
     companion object {
         var instance = FedeServerImpl()
     }
@@ -35,8 +33,6 @@ class FedeServerImpl : FederatedServer {
             it.logger = logger
             it.roundSerialiser = roundSerialiser
             it.properties = properties
-
-            currentRound = initialiseCurrentRound()
         }
     }
 
@@ -49,7 +45,7 @@ class FedeServerImpl : FederatedServer {
         // TODO This logic to UseCase when created
         repository.storeClientUpdate(IOUtils.toByteArray(clientGradient), samples)
         roundController.onNewClientUpdate()
-        when (roundController.checkCurrentRound(currentRound)) {
+        when (roundController.checkCurrentRound()) {
             true -> Unit
             false -> roundController.endRound()
         }

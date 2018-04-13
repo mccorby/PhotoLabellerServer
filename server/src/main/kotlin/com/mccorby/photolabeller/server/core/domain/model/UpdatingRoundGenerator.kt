@@ -5,14 +5,14 @@ import java.util.*
 
 class UpdatingRoundGenerator(private val currentRoundJson: UpdatingRound?,
                              private val timeWindow: Long,
-                                 private val minUpdates: Int) : UpdatingRoundStrategy {
+                             private val minUpdates: Int) : UpdatingRoundStrategy {
 
     override fun createUpdatingRound(): UpdatingRound =
-        if (checkCurrentUpdatingRound(currentRoundJson)) {
-            currentRoundJson!!
-        } else {
-            createNewUpdatingRound()
-        }
+            if (checkCurrentUpdatingRound(currentRoundJson)) {
+                currentRoundJson!!
+            } else {
+                createNewUpdatingRound()
+            }
 
 
     private fun createNewUpdatingRound(): UpdatingRound {
