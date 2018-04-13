@@ -1,9 +1,13 @@
-package com.mccorby.photolabeller.server.core.domain.model
+package com.mccorby.photolabeller.server
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.mccorby.photolabeller.server.core.domain.model.RoundController
+import com.mccorby.photolabeller.server.core.domain.model.UpdatingRound
 import com.mccorby.photolabeller.server.core.domain.repository.ServerRepository
 import java.text.SimpleDateFormat
 import java.util.*
 
+// TODO Refactor this class. It is doing too many things
 class BasicRoundController(private val repository: ServerRepository,
                            initialCurrentRound: UpdatingRound?,
                            private val timeWindow: Long,
@@ -18,6 +22,7 @@ class BasicRoundController(private val repository: ServerRepository,
         } else {
             createNewUpdatingRound()
         }
+        repository.storeCurrentUpdatingRound(currentRound!!)
         return currentRound!!
     }
 
@@ -34,6 +39,12 @@ class BasicRoundController(private val repository: ServerRepository,
 
     override fun onNewClientUpdate() {
         numberOfClientUpdates++
+    }
+
+    override fun getCurrentRound(): UpdatingRound = currentRound!!
+
+    override fun currentRoundToJson(): String {
+        return jacksonObjectMapper().writeValueAsString(currentRound!!)
     }
 
     private fun createNewUpdatingRound(): UpdatingRound {

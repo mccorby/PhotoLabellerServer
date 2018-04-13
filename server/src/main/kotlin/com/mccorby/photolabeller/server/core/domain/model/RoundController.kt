@@ -5,4 +5,6 @@ interface RoundController {
     fun endRound(): Boolean
     fun checkCurrentRound(): Boolean
     fun onNewClientUpdate()
+    fun getCurrentRound(): UpdatingRound
+    fun currentRoundToJson(): String
 }

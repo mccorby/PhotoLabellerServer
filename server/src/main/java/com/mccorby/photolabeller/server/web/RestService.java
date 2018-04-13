@@ -2,6 +2,7 @@ package com.mccorby.photolabeller.server.web;
 
 
 import com.mccorby.photolabeller.server.*;
+import com.mccorby.photolabeller.server.BasicRoundController;
 import com.mccorby.photolabeller.server.core.datasource.*;
 import com.mccorby.photolabeller.server.core.domain.model.*;
 import com.mccorby.photolabeller.server.core.domain.repository.ServerRepository;
@@ -32,24 +33,16 @@ public class RestService {
             ServerRepository repository = new ServerRepositoryImpl(fileDataSource, memoryDataSource);
             Logger logger = System.out::println;
             GradientStrategy gradientStrategy = new AverageGradientStrategy(logger);
-            UpdatingRoundSerialiser roundSerialiser = new UpdatingRoundSerialiser();
 
-            UpdatingRound currentUpdatingRound = null;
-            java.nio.file.Path path = Paths.get(properties.getProperty("model_dir"), "/currentRound.json");
-            if (Files.exists(path)) {
-                currentUpdatingRound = roundSerialiser.fromJson(path);
-            }
+            UpdatingRound currentUpdatingRound = repository.retrieveCurrentUpdatingRound();
 
             long timeWindow = Long.valueOf(properties.getProperty("time_window"));
             int minUpdates = Integer.valueOf(properties.getProperty("min_updates"));
 
-            UpdatingRoundGenerator generator = new UpdatingRoundGenerator(currentUpdatingRound,
-                    timeWindow,
-                    minUpdates);
             RoundController roundController = new BasicRoundController(repository, currentUpdatingRound, timeWindow, minUpdates);
 
             federatedServer = FedeServerImpl.Companion.getInstance();
-            federatedServer.initialise(repository, gradientStrategy, roundController, roundSerialiser, logger, properties);
+            federatedServer.initialise(repository, gradientStrategy, roundController, logger, properties);
         }
     }
 
@@ -67,25 +60,19 @@ public class RestService {
         if (is == null) {
             return false;
         } else {
-            FedeServerImpl.Companion.getInstance().pushGradient(is, samples);
+            federatedServer.pushGradient(is, samples);
             return true;
         }
-    }
-
-    @GET
-    @Produces(MediaType.APPLICATION_OCTET_STREAM)
-    @Path("/gradient")
-    public byte[] getGradient() {
-        return FederatedServerImpl.getInstance().sendUpdatedGradient();
     }
 
     @GET
     @Path("/model")
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     public Response getFile() {
-        File file = FederatedServerImpl.getInstance().getModelFile();
+        File file = federatedServer.getModelFile();
+        String fileName = federatedServer.getUpdatingRound().getModelVersion() + ".zip";
         Response.ResponseBuilder response = Response.ok(file);
-        response.header("Content-Disposition", "attachment; filename=\"model.zip\"");
+        response.header("Content-Disposition", "attachment; filename=\"" + fileName + "\"");
         return response.build();
 
     }
@@ -94,7 +81,6 @@ public class RestService {
     @Path("/currentRound")
     @Produces(MediaType.APPLICATION_JSON)
     public String getCurrentRound() {
-        UpdatingRound updatingRound = FederatedServerImpl.getInstance().getUpdatingRound();
-        return FederatedServerImpl.getInstance().getUpdatingRoundAsJson(updatingRound);
+        return federatedServer.getUpdatingRoundAsJson();
     }
 }

@@ -12,7 +12,6 @@ class FedeServerImpl : FederatedServer {
     lateinit var repository: ServerRepository
     lateinit var gradientStrategy: GradientStrategy
     lateinit var roundController: RoundController
-    lateinit var roundSerialiser: UpdatingRoundSerialiser
     lateinit var properties: Properties
     lateinit var logger: Logger
 
@@ -23,7 +22,6 @@ class FedeServerImpl : FederatedServer {
     override fun initialise(repository: ServerRepository,
                             gradientStrategy: GradientStrategy,
                             roundController: RoundController,
-                            roundSerialiser: UpdatingRoundSerialiser,
                             logger: Logger,
                             properties: Properties) {
         instance.let {
@@ -31,14 +29,8 @@ class FedeServerImpl : FederatedServer {
             it.gradientStrategy = gradientStrategy
             it.roundController = roundController
             it.logger = logger
-            it.roundSerialiser = roundSerialiser
             it.properties = properties
         }
-    }
-
-    private fun initialiseCurrentRound(): UpdatingRound {
-        // TODO repository to init the current round
-        return UpdatingRound("", 1, 2, 3)
     }
 
     override fun pushGradient(clientGradient: InputStream, samples: Int) {
@@ -51,19 +43,13 @@ class FedeServerImpl : FederatedServer {
         }
     }
 
-    override fun sendUpdatedGradient(): ByteArray {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun getUpdatingRound(): UpdatingRound {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+    override fun getUpdatingRound(): UpdatingRound = roundController.getCurrentRound()
 
     override fun getModelFile(): File {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        return repository.retrieveModel()
     }
 
-    override fun getUpdatingRoundAsJson(updatingRound: UpdatingRound?): String {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun getUpdatingRoundAsJson(): String {
+        return roundController.currentRoundToJson()
     }
 }

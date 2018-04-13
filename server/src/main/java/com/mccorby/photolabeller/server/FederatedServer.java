@@ -13,11 +13,8 @@ public interface FederatedServer {
     void initialise(ServerRepository repository,
                     GradientStrategy gradientStrategy,
                     RoundController roundController,
-                    UpdatingRoundSerialiser roundSerialiser,
                     Logger logger,
                     Properties properties);
-
-    byte[] sendUpdatedGradient();
 
     void pushGradient(InputStream clientGradient, int samples);
 
@@ -25,5 +22,5 @@ public interface FederatedServer {
 
     File getModelFile();
 
-    String getUpdatingRoundAsJson(UpdatingRound updatingRound);
+    String getUpdatingRoundAsJson();
 }

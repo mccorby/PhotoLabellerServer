@@ -1,5 +1,6 @@
 package com.mccorby.photolabeller.server.core.domain.model
 
+import com.mccorby.photolabeller.server.BasicRoundController
 import com.mccorby.photolabeller.server.core.domain.repository.ServerRepository
 import com.nhaarman.mockito_kotlin.verify
 import com.nhaarman.mockito_kotlin.whenever
@@ -59,7 +60,7 @@ internal class BasicRoundControllerTest {
     }
 
     @Test
-    fun `Given null round when starting new round then a new round is created`() {
+    fun `Given null round when starting new round then a new round is created and is stored`() {
         // Given
         val basicRoundController = BasicRoundController(repository, null, timeWindow, minUpdates)
         // When
@@ -67,6 +68,7 @@ internal class BasicRoundControllerTest {
 
         // Then
         assertNotNull(result)
+        verify(repository).storeCurrentUpdatingRound(result)
     }
 
     @Test
