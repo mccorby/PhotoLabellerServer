@@ -2,14 +2,11 @@ package com.mccorby.photolabeller.server.core.datasource
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.mccorby.photolabeller.server.core.datasource.FileDataSourceImpl.Companion.currentRoundFileName
-import com.mccorby.photolabeller.server.core.datasource.FileDataSourceImpl.Companion.defaultRoundDir
 import com.mccorby.photolabeller.server.core.domain.model.UpdatingRound
 import org.apache.commons.io.FileUtils
 import java.io.File
 import java.nio.file.Path
 import java.nio.file.Paths
-import java.text.SimpleDateFormat
 import java.util.*
 
 class FileDataSourceImpl(private val rootDir: Path): FileDataSource {
@@ -21,6 +18,7 @@ class FileDataSourceImpl(private val rootDir: Path): FileDataSource {
     }
 
     override fun storeUpdate(gradientByteArray: ByteArray): File {
+        File(rootDir.toString(), "client_updates").apply { mkdir() }
         val file = generateFileName()
         FileUtils.writeByteArrayToFile(file, gradientByteArray)
         return file
@@ -47,7 +45,7 @@ class FileDataSourceImpl(private val rootDir: Path): FileDataSource {
 
     // TODO We could have a file name generator and pass it as a dependence to this class
     private fun generateFileName(): File  {
-        val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
+        val timeStamp = Date().time
         val fileName = "_" + timeStamp + "_"
         val path = Paths.get(rootDir.toString(), defaultRoundDir, fileName)
         return File(path.toString())

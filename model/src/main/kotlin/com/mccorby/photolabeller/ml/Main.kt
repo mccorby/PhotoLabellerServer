@@ -15,26 +15,27 @@ import javax.imageio.ImageIO
 
 
 fun main(args: Array<String>) {
-    if (args[0] == "train") {
+    if (args.isNotEmpty() && args[0] == "train") {
         val seed = 123
         val iterations = 1
         val numLabels = CifarLoader.NUM_LABELS
         val saveFile = "cifar_federated.zip"
 
-        val numEpochs = 5
+        val numEpochs = 50
         val numSamples = 10000
 
         val config = SharedConfig(32, 3, 100)
         val trainer = CifarTrainer(config)
         var model = trainer.createModel(seed, iterations, numLabels)
         model = trainer.train(model, numSamples, numEpochs)
-        val eval = trainer.eval(model, numSamples)
-        println(eval.stats())
 
-        if (args.isNotEmpty() && args[1].isNotEmpty()) {
+        if (args[1].isNotEmpty()) {
             println("Saving model to ${args[1]}")
             trainer.saveModel(model, args[1] + "/$saveFile")
         }
+        val eval = trainer.eval(model, numSamples)
+        println(eval.stats())
+
     } else {
         predict()
     }
@@ -43,7 +44,7 @@ fun main(args: Array<String>) {
 fun predict() {
     val model = ModelSerializer.restoreMultiLayerNetwork("/Users/jco59/ML/TechConf-2018/save/cifar_federated.zip")
 
-    val file = File("/Users/jco59/Downloads/car.jpeg")
+    val file = File("/Users/jco59/Downloads/toad.png")
     val resizeimage = opencv_core.Mat()
     val sz = opencv_core.Size(32, 32)
     val opencvImage = org.bytedeco.javacpp.opencv_imgcodecs.imread(file.absolutePath)

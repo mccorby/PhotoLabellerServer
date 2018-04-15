@@ -52,9 +52,21 @@ public class RestService {
         return "yes";
     }
 
+//    @POST
+//    @Consumes(MediaType.APPLICATION_OCTET_STREAM)
+//    @Path("/model")
+//    public Boolean pushGradient(@QueryParam("samples") int samples, InputStream is) {
+//        if (is == null) {
+//            return false;
+//        } else {
+//            federatedServer.pushGradient(is, samples);
+//            return true;
+//        }
+//    }
+
     @POST
     @Consumes(MediaType.MULTIPART_FORM_DATA)
-    @Path("/gradient")
+    @Path("/model")
     public Boolean pushGradient(@FormDataParam("file") InputStream is, @FormDataParam("samples") int samples) {
         if (is == null) {
             return false;

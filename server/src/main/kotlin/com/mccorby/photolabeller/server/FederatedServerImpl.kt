@@ -34,6 +34,7 @@ class FederatedServerImpl : FederatedServer {
     }
 
     override fun pushGradient(clientGradient: InputStream, samples: Int) {
+        logger.log("Storing gradient in server $samples")
         // TODO This logic to UseCase when created
         repository.storeClientUpdate(IOUtils.toByteArray(clientGradient), samples)
         roundController.onNewClientUpdate()
