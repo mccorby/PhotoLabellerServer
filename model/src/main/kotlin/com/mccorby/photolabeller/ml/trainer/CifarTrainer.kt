@@ -1,12 +1,13 @@
 package com.mccorby.photolabeller.ml.trainer
 
-import org.bytedeco.javacpp.opencv_imgproc.CV_BGR2RGB
 import org.datavec.image.loader.CifarLoader
-import org.datavec.image.transform.ColorConversionTransform
 import org.deeplearning4j.datasets.iterator.impl.CifarDataSetIterator
 import org.deeplearning4j.eval.Evaluation
 import org.deeplearning4j.nn.api.OptimizationAlgorithm
-import org.deeplearning4j.nn.conf.*
+import org.deeplearning4j.nn.conf.ConvolutionMode
+import org.deeplearning4j.nn.conf.GradientNormalization
+import org.deeplearning4j.nn.conf.NeuralNetConfiguration
+import org.deeplearning4j.nn.conf.Updater
 import org.deeplearning4j.nn.conf.inputs.InputType
 import org.deeplearning4j.nn.conf.layers.*
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork
@@ -14,7 +15,6 @@ import org.deeplearning4j.nn.weights.WeightInit
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener
 import org.deeplearning4j.util.ModelSerializer
 import org.nd4j.linalg.activations.Activation
-import org.nd4j.linalg.factory.Nd4j
 import org.nd4j.linalg.lossfunctions.LossFunctions
 import java.io.File
 
@@ -51,20 +51,9 @@ class CifarTrainer(private val config: SharedConfig) {
                         .build())
                 .layer(2, LocalResponseNormalization.Builder(3.0, 5e-05, 0.75)
                         .build())
-//                .layer(3, ConvolutionLayer.Builder(5, 5)
-//                        .name("cnn2")
-//                        .stride(1, 1)
-//                        .padding(2, 2)
-//                        .nOut(32)
-//                        .build())
-//                .layer(4, SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX, intArrayOf(3, 3))
-//                        .name("pool2")
-//                        .build())
-//                .layer(5, LocalResponseNormalization.Builder(3.0, 5e-05, 0.75)
-//                        .build())
                 .layer(3, DenseLayer.Builder()
                         .name("ffn1")
-                        .nOut(125)
+                        .nOut(64)
                         .dropOut(0.5)
                         .build())
                 .layer(4, OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)

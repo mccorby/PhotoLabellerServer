@@ -4,14 +4,12 @@ import com.mccorby.photolabeller.ml.trainer.CifarTrainer
 import com.mccorby.photolabeller.ml.trainer.SharedConfig
 import org.bytedeco.javacpp.opencv_core
 import org.datavec.image.loader.CifarLoader
-import org.datavec.image.loader.ImageLoader
 import org.datavec.image.loader.NativeImageLoader
 import org.deeplearning4j.util.ModelSerializer
 import org.nd4j.linalg.api.ndarray.INDArray
 import org.nd4j.linalg.factory.Nd4j
 import java.io.File
-import java.io.InputStream
-import javax.imageio.ImageIO
+import java.util.*
 
 
 fun main(args: Array<String>) {
@@ -19,7 +17,7 @@ fun main(args: Array<String>) {
         val seed = 123
         val iterations = 1
         val numLabels = CifarLoader.NUM_LABELS
-        val saveFile = "cifar_federated.zip"
+        val saveFile = "cifar_federated-${Date().time}.zip"
 
         val numEpochs = 50
         val numSamples = 10000
@@ -33,6 +31,7 @@ fun main(args: Array<String>) {
             println("Saving model to ${args[1]}")
             trainer.saveModel(model, args[1] + "/$saveFile")
         }
+
         val eval = trainer.eval(model, numSamples)
         println(eval.stats())
 
@@ -42,9 +41,9 @@ fun main(args: Array<String>) {
 }
 
 fun predict() {
-    val model = ModelSerializer.restoreMultiLayerNetwork("/Users/jco59/ML/TechConf-2018/save/cifar_federated.zip")
+    val model = ModelSerializer.restoreMultiLayerNetwork("/Users/jco59/ML/TechConf-2018/save/cifar_federated-1523948880313.zip")
 
-    val file = File("/Users/jco59/Downloads/toad.png")
+    val file = File("/Users/jco59/Downloads/car.jpeg")
     val resizeimage = opencv_core.Mat()
     val sz = opencv_core.Size(32, 32)
     val opencvImage = org.bytedeco.javacpp.opencv_imgcodecs.imread(file.absolutePath)
