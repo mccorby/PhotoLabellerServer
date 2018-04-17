@@ -2,7 +2,7 @@ package com.mccorby.photolabeller.server
 
 import com.mccorby.photolabeller.server.core.domain.model.*
 import com.mccorby.photolabeller.server.core.domain.repository.ServerRepository
-import org.jcodec.common.IOUtils
+import org.apache.commons.io.IOUtils
 import java.io.File
 import java.io.InputStream
 import java.util.*
@@ -10,7 +10,7 @@ import java.util.*
 class FederatedServerImpl : FederatedServer {
 
     lateinit var repository: ServerRepository
-    lateinit var gradientStrategy: GradientStrategy
+    lateinit var updateStrategy: UpdatesStrategy
     lateinit var roundController: RoundController
     lateinit var properties: Properties
     lateinit var logger: Logger
@@ -20,28 +20,34 @@ class FederatedServerImpl : FederatedServer {
     }
 
     override fun initialise(repository: ServerRepository,
-                            gradientStrategy: GradientStrategy,
+                            updateStrategy: UpdatesStrategy,
                             roundController: RoundController,
                             logger: Logger,
                             properties: Properties) {
         instance.let {
             it.repository = repository
-            it.gradientStrategy = gradientStrategy
+            it.updateStrategy = updateStrategy
             it.roundController = roundController
             it.logger = logger
             it.properties = properties
         }
     }
 
-    override fun pushGradient(clientGradient: InputStream, samples: Int) {
+    override fun pushGradient(clientUpdate: ByteArray, samples: Int) {
         logger.log("Storing gradient in server $samples")
         // TODO This logic to UseCase when created
-        repository.storeClientUpdate(IOUtils.toByteArray(clientGradient), samples)
+        repository.storeClientUpdate(clientUpdate, samples)
         roundController.onNewClientUpdate()
         when (roundController.checkCurrentRound()) {
             true -> Unit
-            false -> roundController.endRound()
+            false -> processUpdates()
         }
+    }
+
+    private fun processUpdates() {
+        roundController.freezeRound()
+        updateStrategy.processUpdates()
+        roundController.endRound()
     }
 
     override fun getUpdatingRound(): UpdatingRound = roundController.getCurrentRound()

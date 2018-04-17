@@ -26,6 +26,10 @@ class BasicRoundController(private val repository: ServerRepository,
         return currentRound!!
     }
 
+    override fun freezeRound() {
+
+    }
+
     override fun endRound(): Boolean {
         numberOfClientUpdates = 0
         currentRound = null
@@ -36,6 +40,7 @@ class BasicRoundController(private val repository: ServerRepository,
     override fun checkCurrentRound(): Boolean {
         return currentRound?.let { it.minUpdates > numberOfClientUpdates } ?: false
     }
+
 
     override fun onNewClientUpdate() {
         numberOfClientUpdates++

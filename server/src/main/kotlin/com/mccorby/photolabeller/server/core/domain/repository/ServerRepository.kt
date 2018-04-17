@@ -7,8 +7,10 @@ import java.io.File
 interface ServerRepository {
     fun storeClientUpdate(gradientByteArray: ByteArray, samples: Int)
     fun listClientUpdates(): List<ClientUpdate>
+    fun getTotalSamples(): Int
     fun clearClientUpdates(): Boolean
     fun storeCurrentUpdatingRound(updatingRound: UpdatingRound)
     fun retrieveCurrentUpdatingRound(): UpdatingRound
     fun retrieveModel(): File
+    fun restoreClientUpdates()
 }

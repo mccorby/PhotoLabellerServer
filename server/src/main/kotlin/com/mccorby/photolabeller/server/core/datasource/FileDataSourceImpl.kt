@@ -4,6 +4,10 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.mccorby.photolabeller.server.core.domain.model.UpdatingRound
 import org.apache.commons.io.FileUtils
+import org.apache.commons.io.IOCase
+import org.apache.commons.io.filefilter.IOFileFilter
+import org.apache.commons.io.filefilter.SuffixFileFilter
+import org.apache.commons.io.filefilter.TrueFileFilter
 import java.io.File
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -32,6 +36,13 @@ class FileDataSourceImpl(private val rootDir: Path): FileDataSource {
         jacksonObjectMapper().writeValue(getCurrentRoundJsonFile(), updatingRound)
     }
 
+    override fun getClientUpdates(): List<File> {
+        return FileUtils.listFiles(File(Paths.get(rootDir.toString(), defaultRoundDir).toString()),
+                SuffixFileFilter(".update", IOCase.INSENSITIVE),
+                TrueFileFilter.INSTANCE)
+                .toList()
+    }
+
     override fun retrieveCurrentUpdatingRound(): UpdatingRound =
             jacksonObjectMapper().readValue(getCurrentRoundJsonFile())
 
@@ -44,9 +55,10 @@ class FileDataSourceImpl(private val rootDir: Path): FileDataSource {
     }
 
     // TODO We could have a file name generator and pass it as a dependence to this class
+    // Note that in a real world application this could lead to several updates being named the same
     private fun generateFileName(): File  {
         val timeStamp = Date().time
-        val fileName = "_" + timeStamp + "_"
+        val fileName = "_${timeStamp}_.update"
         val path = Paths.get(rootDir.toString(), defaultRoundDir, fileName)
         return File(path.toString())
     }

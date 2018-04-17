@@ -1,10 +1,8 @@
 ext {
     kotlin_version = "1.2.31"
-    nd4j_version = "0.7.2"
-    dl4j_version = "0.7.2"
-    datavec_version = "0.7.2"
-    arbiter_version = "0.7.2"
-    rl4j_version = "0.7.2"
+    nd4j_version = "0.8.0"
+    dl4j_version = "0.8.0"
+    datavec_version = "0.8.0"
     jackon_kotlin_version = "2.9.0"
     slf4j_version = "1.6.1"
     jetty_version = "9.2.9.v20150224"

@@ -1,11 +1,12 @@
 package com.mccorby.photolabeller.server.web;
 
-
 import com.mccorby.photolabeller.server.*;
 import com.mccorby.photolabeller.server.BasicRoundController;
+import com.mccorby.photolabeller.server.core.FederatedAveragingStrategy;
 import com.mccorby.photolabeller.server.core.datasource.*;
 import com.mccorby.photolabeller.server.core.domain.model.*;
 import com.mccorby.photolabeller.server.core.domain.repository.ServerRepository;
+import org.apache.commons.io.IOUtils;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
 import javax.ws.rs.*;
@@ -31,7 +32,7 @@ public class RestService {
             MemoryDataSource memoryDataSource = new MemoryDataSourceImpl();
             ServerRepository repository = new ServerRepositoryImpl(fileDataSource, memoryDataSource);
             Logger logger = System.out::println;
-            GradientStrategy gradientStrategy = new AverageGradientStrategy(logger);
+            UpdatesStrategy updatesStrategy = new FederatedAveragingStrategy(repository);
 
             UpdatingRound currentUpdatingRound = repository.retrieveCurrentUpdatingRound();
 
@@ -41,7 +42,7 @@ public class RestService {
             RoundController roundController = new BasicRoundController(repository, currentUpdatingRound, timeWindow, minUpdates);
 
             federatedServer = FederatedServerImpl.Companion.getInstance();
-            federatedServer.initialise(repository, gradientStrategy, roundController, logger, properties);
+            federatedServer.initialise(repository, updatesStrategy, roundController, logger, properties);
         }
     }
 
@@ -52,26 +53,15 @@ public class RestService {
         return "yes";
     }
 
-//    @POST
-//    @Consumes(MediaType.APPLICATION_OCTET_STREAM)
-//    @Path("/model")
-//    public Boolean pushGradient(@QueryParam("samples") int samples, InputStream is) {
-//        if (is == null) {
-//            return false;
-//        } else {
-//            federatedServer.pushGradient(is, samples);
-//            return true;
-//        }
-//    }
-
     @POST
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Path("/model")
-    public Boolean pushGradient(@FormDataParam("file") InputStream is, @FormDataParam("samples") int samples) {
+    public Boolean pushGradient(@FormDataParam("file") InputStream is, @FormDataParam("samples") int samples) throws IOException {
         if (is == null) {
             return false;
         } else {
-            federatedServer.pushGradient(is, samples);
+            byte[] bytes = IOUtils.toByteArray(is);
+            federatedServer.pushGradient(bytes, samples);
             return true;
         }
     }
@@ -85,7 +75,6 @@ public class RestService {
         Response.ResponseBuilder response = Response.ok(file);
         response.header("Content-Disposition", "attachment; filename=\"" + fileName + "\"");
         return response.build();
-
     }
 
     @GET

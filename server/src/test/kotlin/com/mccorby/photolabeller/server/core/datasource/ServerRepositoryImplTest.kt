@@ -101,4 +101,22 @@ internal class ServerRepositoryImplTest {
         verify(fileDataSource).retrieveModel()
         assertEquals(fileModel, result)
     }
+
+    @Test
+    fun `Given a list of updates when calculating the total samples the correct amount is returned`() {
+        // Given
+        val clientUpdates = listOf(
+                ClientUpdate(File("any"), 10),
+                ClientUpdate(File("any other "), 10),
+                ClientUpdate(File("someOther"), 4))
+        whenever(memoryDataSource.getUpdates()).thenReturn(clientUpdates)
+        val expected = 24
+
+        // When
+        val result = cut.getTotalSamples()
+
+        // Then
+        assertEquals(expected, result)
+
+    }
 }

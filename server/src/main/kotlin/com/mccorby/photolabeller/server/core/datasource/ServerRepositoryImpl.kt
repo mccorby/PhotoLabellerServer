@@ -13,6 +13,10 @@ class ServerRepositoryImpl(private val fileDataSource: FileDataSource, private v
         memoryDataSource.addUpdate(ClientUpdate(file, samples))
     }
 
+    override fun getTotalSamples(): Int {
+        return listClientUpdates().map { it.samples }.sum()
+    }
+
     override fun clearClientUpdates(): Boolean {
         memoryDataSource.clear()
         fileDataSource.clearUpdates()
@@ -29,5 +33,11 @@ class ServerRepositoryImpl(private val fileDataSource: FileDataSource, private v
 
     override fun retrieveModel(): File {
         return fileDataSource.retrieveModel()
+    }
+
+    override fun restoreClientUpdates() {
+         fileDataSource.getClientUpdates().forEach {
+             memoryDataSource.addUpdate(ClientUpdate(it, 32))
+         }
     }
 }
