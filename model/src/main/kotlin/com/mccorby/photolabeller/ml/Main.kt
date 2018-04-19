@@ -6,11 +6,8 @@ import org.bytedeco.javacpp.opencv_core
 import org.datavec.image.loader.CifarLoader
 import org.datavec.image.loader.NativeImageLoader
 import org.deeplearning4j.util.ModelSerializer
-import org.nd4j.linalg.api.ndarray.INDArray
-import org.nd4j.linalg.factory.Nd4j
 import java.io.File
 import java.util.*
-
 
 fun main(args: Array<String>) {
     if (args.isNotEmpty() && args[0] == "train") {
@@ -36,37 +33,28 @@ fun main(args: Array<String>) {
         println(eval.stats())
 
     } else {
-        predict()
+        predict(args[1], args[0])
     }
 }
 
-fun predict() {
-    val model = ModelSerializer.restoreMultiLayerNetwork("/Users/jco59/ML/TechConf-2018/save/cifar_federated-1523948880313.zip")
+fun predict(modelFile: String, imageFile: String) {
+    val config = SharedConfig(32, 3, 100)
+    val trainer = CifarTrainer(config)
 
-    val file = File("/Users/jco59/Downloads/car.jpeg")
-    val resizeimage = opencv_core.Mat()
+    val model = ModelSerializer.restoreMultiLayerNetwork(modelFile)
+
+    val eval = trainer.eval(model, 100)
+    println(eval.stats())
+
+    val file = File(imageFile)
+    val resizedImage = opencv_core.Mat()
     val sz = opencv_core.Size(32, 32)
     val opencvImage = org.bytedeco.javacpp.opencv_imgcodecs.imread(file.absolutePath)
-    org.bytedeco.javacpp.opencv_imgproc.resize(opencvImage, resizeimage, sz)
+    org.bytedeco.javacpp.opencv_imgproc.resize(opencvImage, resizedImage, sz)
 
-    val nil = NativeImageLoader()
-    val image = nil.asMatrix(resizeimage)
+    val nativeImageLoader = NativeImageLoader()
+    val image = nativeImageLoader.asMatrix(resizedImage)
     val reshapedImage = image.reshape(1, 3, 32, 32)
     val result = model.predict(reshapedImage)
     println(result.joinToString(", ", prefix = "[", postfix = "]"))
-}
-
-fun asMatrix(input: IntArray): INDArray? {
-    val height = 32
-    val width = 32
-    val bands = 3
-
-    val shape = intArrayOf(1, height, width, bands)
-
-    val ret2 = Nd4j.create(1, input.size)
-    for (i in 0 until ret2.length()) {
-        ret2.putScalar(i, input[i] and 0xFF)
-    }
-    // [minibatch,inputDepth,height,width]=[3, 32, 32, 1]; expected input depth = 3)
-    return ret2.reshape(*shape).permute(0, 3, 1, 2)
 }

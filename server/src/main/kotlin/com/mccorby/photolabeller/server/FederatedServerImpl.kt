@@ -31,9 +31,9 @@ class FederatedServerImpl : FederatedServer {
         }
     }
 
+    // TODO This logic to UseCase when created
     override fun pushUpdate(clientUpdate: ByteArray, samples: Int) {
         logger.log("Storing update in server $samples")
-        // TODO This logic to UseCase when created
         repository.storeClientUpdate(clientUpdate, samples)
         roundController.onNewClientUpdate()
         when (roundController.checkCurrentRound()) {
@@ -42,19 +42,19 @@ class FederatedServerImpl : FederatedServer {
         }
     }
 
+    // TODO This logic to UseCase when created
     private fun processUpdates() {
         roundController.freezeRound()
-        updateStrategy.processUpdates()
+        val newModel = updateStrategy.processUpdates()
+        newModel.flush()
+        repository.storeModel(newModel.toByteArray())
+        newModel.close()
         roundController.endRound()
     }
 
-    override fun getUpdatingRound(): UpdatingRound = roundController.getCurrentRound()
+    override fun getUpdatingRound() = roundController.getCurrentRound()
 
-    override fun getModelFile(): File {
-        return repository.retrieveModel()
-    }
+    override fun getModelFile() = repository.retrieveModel()
 
-    override fun getUpdatingRoundAsJson(): String {
-        return roundController.currentRoundToJson()
-    }
+    override fun getUpdatingRoundAsJson() = roundController.currentRoundToJson()
 }

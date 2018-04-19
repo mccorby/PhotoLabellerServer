@@ -10,4 +10,5 @@ interface FileDataSource {
     fun retrieveCurrentUpdatingRound(): UpdatingRound
     fun retrieveModel(): File
     fun getClientUpdates(): List<File>
+    fun storeModel(newModel: ByteArray): File
 }

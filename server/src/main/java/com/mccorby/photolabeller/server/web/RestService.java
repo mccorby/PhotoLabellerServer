@@ -24,6 +24,7 @@ public class RestService {
     public RestService() throws IOException {
         if (federatedServer == null) {
             // TODO Inject!
+            // TODO Properties to SharedConfig
             Properties properties = new Properties();
             properties.load(new FileInputStream("./server/local.properties"));
 
@@ -32,7 +33,7 @@ public class RestService {
             MemoryDataSource memoryDataSource = new MemoryDataSourceImpl();
             ServerRepository repository = new ServerRepositoryImpl(fileDataSource, memoryDataSource);
             Logger logger = System.out::println;
-            UpdatesStrategy updatesStrategy = new FederatedAveragingStrategy(repository);
+            UpdatesStrategy updatesStrategy = new FederatedAveragingStrategy(repository, Integer.valueOf(properties.getProperty("layer_index")));
 
             UpdatingRound currentUpdatingRound = repository.retrieveCurrentUpdatingRound();
 

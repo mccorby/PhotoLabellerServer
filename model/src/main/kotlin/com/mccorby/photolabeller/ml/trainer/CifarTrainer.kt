@@ -103,8 +103,6 @@ class CifarTrainer(private val config: SharedConfig) {
     }
 
     fun saveModel(model: MultiLayerNetwork, location: String) {
-        val locationModelFile = File(location)
-        val saveUpdater = true
-        ModelSerializer.writeModel(model, locationModelFile, saveUpdater)
+        ModelSerializer.writeModel(model, File(location), true)
     }
 }

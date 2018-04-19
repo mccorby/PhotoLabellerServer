@@ -119,4 +119,18 @@ internal class ServerRepositoryImplTest {
         assertEquals(expected, result)
 
     }
+
+    @Test
+    fun `Given a new model when stored then it is a file`() {
+        // Given
+        val newModel = byteArrayOf()
+        val file = mock<File>()
+        whenever(fileDataSource.storeModel(newModel)).thenReturn(file)
+        // When
+        val result = cut.storeModel(newModel)
+
+        // Then
+        verify(fileDataSource).storeModel(newModel)
+        assertEquals(file, result)
+    }
 }

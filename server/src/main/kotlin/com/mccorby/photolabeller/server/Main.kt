@@ -17,7 +17,7 @@ fun main(args: Array<String>) {
     val memoryDataSource = MemoryDataSourceImpl()
     val repository = ServerRepositoryImpl(fileDataSource, memoryDataSource)
     repository.restoreClientUpdates()
-    val updatesStrategy = FederatedAveragingStrategy(repository)
+    val updatesStrategy = FederatedAveragingStrategy(repository, 3)
 
     updatesStrategy.processUpdates()
 }

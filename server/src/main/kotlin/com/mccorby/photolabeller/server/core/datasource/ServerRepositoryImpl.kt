@@ -5,7 +5,8 @@ import com.mccorby.photolabeller.server.core.domain.model.UpdatingRound
 import com.mccorby.photolabeller.server.core.domain.repository.ServerRepository
 import java.io.File
 
-class ServerRepositoryImpl(private val fileDataSource: FileDataSource, private val memoryDataSource: MemoryDataSource): ServerRepository {
+class ServerRepositoryImpl(private val fileDataSource: FileDataSource, private val memoryDataSource: MemoryDataSource) : ServerRepository {
+
     override fun listClientUpdates(): List<ClientUpdate> = memoryDataSource.getUpdates()
 
     override fun storeClientUpdate(updateByteArray: ByteArray, samples: Int) {
@@ -13,9 +14,7 @@ class ServerRepositoryImpl(private val fileDataSource: FileDataSource, private v
         memoryDataSource.addUpdate(ClientUpdate(file, samples))
     }
 
-    override fun getTotalSamples(): Int {
-        return listClientUpdates().map { it.samples }.sum()
-    }
+    override fun getTotalSamples(): Int = listClientUpdates().map { it.samples }.sum()
 
     override fun clearClientUpdates(): Boolean {
         memoryDataSource.clear()
@@ -27,18 +26,17 @@ class ServerRepositoryImpl(private val fileDataSource: FileDataSource, private v
         fileDataSource.saveUpdatingRound(updatingRound)
     }
 
-    override fun retrieveCurrentUpdatingRound(): UpdatingRound {
-        return fileDataSource.retrieveCurrentUpdatingRound()
-    }
+    override fun retrieveCurrentUpdatingRound(): UpdatingRound = fileDataSource.retrieveCurrentUpdatingRound()
 
-    override fun retrieveModel(): File {
-        return fileDataSource.retrieveModel()
-    }
+    override fun retrieveModel(): File = fileDataSource.retrieveModel()
+
+
+    override fun storeModel(newModel: ByteArray): File = fileDataSource.storeModel(newModel)
 
     // TODO This is just for testing purposes. Number of samples should be serialised together with the file
     override fun restoreClientUpdates() {
-         fileDataSource.getClientUpdates().forEach {
-             memoryDataSource.addUpdate(ClientUpdate(it, 32))
-         }
+        fileDataSource.getClientUpdates().forEach {
+            memoryDataSource.addUpdate(ClientUpdate(it, 32))
+        }
     }
 }

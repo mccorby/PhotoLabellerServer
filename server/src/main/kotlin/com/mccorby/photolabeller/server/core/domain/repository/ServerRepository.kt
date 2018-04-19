@@ -13,4 +13,5 @@ interface ServerRepository {
     fun retrieveCurrentUpdatingRound(): UpdatingRound
     fun retrieveModel(): File
     fun restoreClientUpdates()
+    fun storeModel(newModel: ByteArray): File
 }

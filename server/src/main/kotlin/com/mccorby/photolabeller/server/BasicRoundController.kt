@@ -37,10 +37,7 @@ class BasicRoundController(private val repository: ServerRepository,
         return true
     }
 
-    override fun checkCurrentRound(): Boolean {
-        return currentRound?.let { it.minUpdates > numberOfClientUpdates } ?: false
-    }
-
+    override fun checkCurrentRound() = currentRound?.let { it.minUpdates > numberOfClientUpdates } ?: false
 
     override fun onNewClientUpdate() {
         numberOfClientUpdates++
@@ -48,9 +45,7 @@ class BasicRoundController(private val repository: ServerRepository,
 
     override fun getCurrentRound(): UpdatingRound = currentRound!!
 
-    override fun currentRoundToJson(): String {
-        return jacksonObjectMapper().writeValueAsString(currentRound!!)
-    }
+    override fun currentRoundToJson(): String = jacksonObjectMapper().writeValueAsString(currentRound!!)
 
     private fun createNewUpdatingRound(): UpdatingRound {
         val currentDate = Date()
@@ -62,7 +57,6 @@ class BasicRoundController(private val repository: ServerRepository,
                 minUpdates)
     }
 
-    private fun checkCurrentUpdatingRound(updatingRound: UpdatingRound?): Boolean {
-        return updatingRound != null && updatingRound.endDate >= Date().time
-    }
+    private fun checkCurrentUpdatingRound(updatingRound: UpdatingRound?) =
+            updatingRound != null && updatingRound.endDate >= Date().time
 }
