@@ -2,16 +2,11 @@ package com.mccorby.photolabeller.server.core.datasource
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.mccorby.photolabeller.server.core.datasource.FileDataSourceImpl.Companion.defaultModelFile
-import com.mccorby.photolabeller.server.core.datasource.FileDataSourceImpl.Companion.defaultRoundDir
+import com.mccorby.photolabeller.server.core.domain.model.ClientUpdate
 import com.mccorby.photolabeller.server.core.domain.model.UpdatingRound
 import org.apache.commons.io.FileUtils
-import org.apache.commons.io.IOCase
-import org.apache.commons.io.filefilter.SuffixFileFilter
-import org.apache.commons.io.filefilter.TrueFileFilter
 import java.io.File
 import java.io.FileOutputStream
-import java.io.OutputStream
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.*
@@ -22,12 +17,14 @@ class FileDataSourceImpl(private val rootDir: Path): FileDataSource {
         const val defaultRoundDir = "currentRound"
         const val currentRoundFileName = "currentRound.json"
         const val defaultModelFile = "model.zip"
+        const val defaultAllUpdatesFileName = "updates.csv"
     }
 
-    override fun storeUpdate(updateByteArray: ByteArray): File {
-        File(rootDir.toString(), "client_updates").apply { mkdir() }
+    override fun storeUpdate(updateByteArray: ByteArray, samples: Int): File {
+        File(rootDir.toString(), defaultRoundDir).apply { mkdir() }
         val file = generateFileName()
         FileUtils.writeByteArrayToFile(file, updateByteArray)
+        FileUtils.write(cvsFile(), "${file.absolutePath},$samples\n", true)
         return file
     }
 
@@ -39,12 +36,8 @@ class FileDataSourceImpl(private val rootDir: Path): FileDataSource {
         jacksonObjectMapper().writeValue(getCurrentRoundJsonFile(), updatingRound)
     }
 
-    override fun getClientUpdates(): List<File> {
-        return FileUtils.listFiles(File(Paths.get(rootDir.toString(), defaultRoundDir).toString()),
-                SuffixFileFilter(".update", IOCase.INSENSITIVE),
-                TrueFileFilter.INSTANCE)
-                .toList()
-    }
+    override fun getClientUpdates(): List<ClientUpdate> =
+            FileUtils.readLines(cvsFile()).map { addClientUpdate(it) }
 
     override fun retrieveCurrentUpdatingRound(): UpdatingRound = jacksonObjectMapper().readValue(getCurrentRoundJsonFile())
 
@@ -57,6 +50,13 @@ class FileDataSourceImpl(private val rootDir: Path): FileDataSource {
             it.close()
         }
         return modelFile()
+    }
+
+    private fun cvsFile() = Paths.get(rootDir.toString(), defaultRoundDir, defaultAllUpdatesFileName).toFile()
+
+    private fun addClientUpdate(csvLine: String): ClientUpdate {
+        val split = csvLine.split(",")
+        return ClientUpdate(File(split[0]), split[1].toInt())
     }
 
     private fun modelFile() = Paths.get(rootDir.toString(), defaultModelFile).toFile()

@@ -34,13 +34,13 @@ internal class ServerRepositoryImplTest {
         val updateByteArray = byteArrayOf()
         val updateFile = mock<File>()
         val samples = 10
-        whenever(fileDataSource.storeUpdate(updateByteArray)).thenReturn(updateFile)
+        whenever(fileDataSource.storeUpdate(updateByteArray, samples)).thenReturn(updateFile)
 
         // When
         cut.storeClientUpdate(updateByteArray, samples)
 
         // Then
-        verify(fileDataSource).storeUpdate(updateByteArray)
+        verify(fileDataSource).storeUpdate(updateByteArray, samples)
         verify(memoryDataSource).addUpdate(ClientUpdate(updateFile, samples))
     }
 

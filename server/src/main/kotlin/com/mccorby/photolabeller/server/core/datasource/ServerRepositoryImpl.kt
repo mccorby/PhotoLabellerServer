@@ -10,7 +10,7 @@ class ServerRepositoryImpl(private val fileDataSource: FileDataSource, private v
     override fun listClientUpdates(): List<ClientUpdate> = memoryDataSource.getUpdates()
 
     override fun storeClientUpdate(updateByteArray: ByteArray, samples: Int) {
-        val file = fileDataSource.storeUpdate(updateByteArray)
+        val file = fileDataSource.storeUpdate(updateByteArray, samples)
         memoryDataSource.addUpdate(ClientUpdate(file, samples))
     }
 
@@ -33,10 +33,9 @@ class ServerRepositoryImpl(private val fileDataSource: FileDataSource, private v
 
     override fun storeModel(newModel: ByteArray): File = fileDataSource.storeModel(newModel)
 
-    // TODO This is just for testing purposes. Number of samples should be serialised together with the file
     override fun restoreClientUpdates() {
         fileDataSource.getClientUpdates().forEach {
-            memoryDataSource.addUpdate(ClientUpdate(it, 32))
+            memoryDataSource.addUpdate(ClientUpdate(it.file, it.samples))
         }
     }
 }
