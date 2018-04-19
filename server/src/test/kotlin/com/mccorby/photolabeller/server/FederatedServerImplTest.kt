@@ -1,5 +1,6 @@
 package com.mccorby.photolabeller.server
 
+import com.mccorby.photolabeller.server.core.domain.model.Logger
 import com.mccorby.photolabeller.server.core.domain.model.RoundController
 import com.mccorby.photolabeller.server.core.domain.model.UpdatesStrategy
 import com.mccorby.photolabeller.server.core.domain.repository.ServerRepository
@@ -12,7 +13,7 @@ import java.util.*
 internal class FederatedServerImplTest {
 
     @Test
-    fun `Given current round has to finish when a new gradient is pushed the round is frozen, the updates processed and the round is ended`() {
+    fun `Given current round has to finish when a new update is pushed the round is frozen, the updates processed and the round is ended`() {
         val repository = mock<ServerRepository>()
         val updatesStrategy = mock<UpdatesStrategy>()
         val roundController = mock<RoundController>()
@@ -25,7 +26,7 @@ internal class FederatedServerImplTest {
         // When
         val cut = FederatedServerImpl.instance
         cut.initialise(repository, updatesStrategy, roundController, logger, properties)
-        cut.pushGradient(modelUpdate, samples)
+        cut.pushUpdate(modelUpdate, samples)
 
         // Then
         verify(repository).storeClientUpdate(modelUpdate, samples)

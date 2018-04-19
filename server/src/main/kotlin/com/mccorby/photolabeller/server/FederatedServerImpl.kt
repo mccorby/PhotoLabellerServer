@@ -2,9 +2,7 @@ package com.mccorby.photolabeller.server
 
 import com.mccorby.photolabeller.server.core.domain.model.*
 import com.mccorby.photolabeller.server.core.domain.repository.ServerRepository
-import org.apache.commons.io.IOUtils
 import java.io.File
-import java.io.InputStream
 import java.util.*
 
 class FederatedServerImpl : FederatedServer {
@@ -20,21 +18,21 @@ class FederatedServerImpl : FederatedServer {
     }
 
     override fun initialise(repository: ServerRepository,
-                            updateStrategy: UpdatesStrategy,
+                            updatesStrategy: UpdatesStrategy,
                             roundController: RoundController,
                             logger: Logger,
                             properties: Properties) {
         instance.let {
             it.repository = repository
-            it.updateStrategy = updateStrategy
+            it.updateStrategy = updatesStrategy
             it.roundController = roundController
             it.logger = logger
             it.properties = properties
         }
     }
 
-    override fun pushGradient(clientUpdate: ByteArray, samples: Int) {
-        logger.log("Storing gradient in server $samples")
+    override fun pushUpdate(clientUpdate: ByteArray, samples: Int) {
+        logger.log("Storing update in server $samples")
         // TODO This logic to UseCase when created
         repository.storeClientUpdate(clientUpdate, samples)
         roundController.onNewClientUpdate()

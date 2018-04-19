@@ -5,7 +5,7 @@ import com.mccorby.photolabeller.server.core.domain.model.UpdatingRound
 import java.io.File
 
 interface ServerRepository {
-    fun storeClientUpdate(gradientByteArray: ByteArray, samples: Int)
+    fun storeClientUpdate(updateByteArray: ByteArray, samples: Int)
     fun listClientUpdates(): List<ClientUpdate>
     fun getTotalSamples(): Int
     fun clearClientUpdates(): Boolean

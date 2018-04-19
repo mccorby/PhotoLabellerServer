@@ -8,8 +8,8 @@ import java.io.File
 class ServerRepositoryImpl(private val fileDataSource: FileDataSource, private val memoryDataSource: MemoryDataSource): ServerRepository {
     override fun listClientUpdates(): List<ClientUpdate> = memoryDataSource.getUpdates()
 
-    override fun storeClientUpdate(gradientByteArray: ByteArray, samples: Int) {
-        val file = fileDataSource.storeUpdate(gradientByteArray)
+    override fun storeClientUpdate(updateByteArray: ByteArray, samples: Int) {
+        val file = fileDataSource.storeUpdate(updateByteArray)
         memoryDataSource.addUpdate(ClientUpdate(file, samples))
     }
 
@@ -35,6 +35,7 @@ class ServerRepositoryImpl(private val fileDataSource: FileDataSource, private v
         return fileDataSource.retrieveModel()
     }
 
+    // TODO This is just for testing purposes. Number of samples should be serialised together with the file
     override fun restoreClientUpdates() {
          fileDataSource.getClientUpdates().forEach {
              memoryDataSource.addUpdate(ClientUpdate(it, 32))

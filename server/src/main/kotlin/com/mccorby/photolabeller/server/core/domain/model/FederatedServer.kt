@@ -11,7 +11,7 @@ interface FederatedServer {
                    logger: Logger,
                    properties: Properties)
 
-    fun pushGradient(clientUpdate: ByteArray, samples: Int)
+    fun pushUpdate(clientUpdate: ByteArray, samples: Int)
 
     fun getUpdatingRound(): UpdatingRound
 

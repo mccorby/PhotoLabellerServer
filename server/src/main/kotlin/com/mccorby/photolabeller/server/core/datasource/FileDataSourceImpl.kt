@@ -5,7 +5,6 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import com.mccorby.photolabeller.server.core.domain.model.UpdatingRound
 import org.apache.commons.io.FileUtils
 import org.apache.commons.io.IOCase
-import org.apache.commons.io.filefilter.IOFileFilter
 import org.apache.commons.io.filefilter.SuffixFileFilter
 import org.apache.commons.io.filefilter.TrueFileFilter
 import java.io.File
@@ -21,10 +20,10 @@ class FileDataSourceImpl(private val rootDir: Path): FileDataSource {
         const val defaultModelFile = "model.zip"
     }
 
-    override fun storeUpdate(gradientByteArray: ByteArray): File {
+    override fun storeUpdate(updateByteArray: ByteArray): File {
         File(rootDir.toString(), "client_updates").apply { mkdir() }
         val file = generateFileName()
-        FileUtils.writeByteArrayToFile(file, gradientByteArray)
+        FileUtils.writeByteArrayToFile(file, updateByteArray)
         return file
     }
 

@@ -31,17 +31,17 @@ internal class ServerRepositoryImplTest {
     @Test
     fun `Given a new update when the repository stores it then the list of updates includes it`() {
         // Given
-        val gradientByteArray = byteArrayOf()
-        val gradientFile = mock<File>()
+        val updateByteArray = byteArrayOf()
+        val updateFile = mock<File>()
         val samples = 10
-        whenever(fileDataSource.storeUpdate(gradientByteArray)).thenReturn(gradientFile)
+        whenever(fileDataSource.storeUpdate(updateByteArray)).thenReturn(updateFile)
 
         // When
-        cut.storeClientUpdate(gradientByteArray, samples)
+        cut.storeClientUpdate(updateByteArray, samples)
 
         // Then
-        verify(fileDataSource).storeUpdate(gradientByteArray)
-        verify(memoryDataSource).addUpdate(ClientUpdate(gradientFile, samples))
+        verify(fileDataSource).storeUpdate(updateByteArray)
+        verify(memoryDataSource).addUpdate(ClientUpdate(updateFile, samples))
     }
 
     @Test

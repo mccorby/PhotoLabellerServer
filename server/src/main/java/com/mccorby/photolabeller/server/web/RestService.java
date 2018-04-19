@@ -61,7 +61,7 @@ public class RestService {
             return false;
         } else {
             byte[] bytes = IOUtils.toByteArray(is);
-            federatedServer.pushGradient(bytes, samples);
+            federatedServer.pushUpdate(bytes, samples);
             return true;
         }
     }
