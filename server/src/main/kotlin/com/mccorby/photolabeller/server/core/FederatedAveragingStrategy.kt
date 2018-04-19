@@ -1,5 +1,6 @@
 package com.mccorby.photolabeller.server.core
 
+import com.mccorby.photolabeller.server.core.domain.model.ClientUpdate
 import com.mccorby.photolabeller.server.core.domain.model.UpdatesStrategy
 import com.mccorby.photolabeller.server.core.domain.repository.ServerRepository
 import org.apache.commons.io.FileUtils
@@ -11,20 +12,17 @@ import org.deeplearning4j.util.ModelSerializer
 import org.nd4j.linalg.api.ndarray.INDArray
 import org.nd4j.linalg.factory.Nd4j
 
-class FederatedAveragingStrategy(private val repository: ServerRepository): UpdatesStrategy {
+class FederatedAveragingStrategy(private val repository: ServerRepository) : UpdatesStrategy {
 
     override fun processUpdates() {
         val totalSamples = repository.getTotalSamples()
-        var sumUpdates: INDArray? = null
-        repository.listClientUpdates().forEach {
-            val update = Nd4j.fromByteArray(FileUtils.readFileToByteArray(it.file))
-            val normaliser = it.samples.toDouble().div(totalSamples.toDouble())
-            val normalisedUpdate = update.div(normaliser)
-            println("Processing ${it.file}")
-            // TODO Could this be done with fold? Only problem is to determine the initial shape of the INArray accumulator
-            sumUpdates = sumUpdates?.add(normalisedUpdate) ?: normalisedUpdate
-        }
         val model = ModelSerializer.restoreMultiLayerNetwork(repository.retrieveModel())
+        val shape = model.getLayer(3).params().shape()
+
+        val sumUpdates = repository.listClientUpdates().fold(
+                Nd4j.zeros(shape[0], shape[1]),
+                { sumUpdates, next -> processSingleUpdate(next, totalSamples, sumUpdates)
+        })
 
         var evaluation = eval(model, 100)
         print(evaluation.accuracy())
@@ -33,6 +31,14 @@ class FederatedAveragingStrategy(private val repository: ServerRepository): Upda
 
         evaluation = eval(model, 100)
         print(evaluation.accuracy())
+    }
+
+    private fun processSingleUpdate(next: ClientUpdate, totalSamples: Int, sumUpdates: INDArray): INDArray {
+        val update = Nd4j.fromByteArray(FileUtils.readFileToByteArray(next.file))
+        val normaliser = next.samples.toDouble().div(totalSamples.toDouble())
+        val normalisedUpdate = update.div(normaliser)
+        println("Processing ${next.file}")
+        return sumUpdates.addi(normalisedUpdate)
     }
 
     private fun eval(model: MultiLayerNetwork, numSamples: Int): Evaluation {
