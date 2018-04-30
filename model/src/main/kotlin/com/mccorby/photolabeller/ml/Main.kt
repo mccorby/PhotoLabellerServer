@@ -5,9 +5,15 @@ import com.mccorby.photolabeller.ml.trainer.SharedConfig
 import org.bytedeco.javacpp.opencv_core
 import org.datavec.image.loader.CifarLoader
 import org.datavec.image.loader.NativeImageLoader
+import org.deeplearning4j.optimize.api.IterationListener
+import org.deeplearning4j.optimize.listeners.ScoreIterationListener
+import org.deeplearning4j.ui.api.UIServer
+import org.deeplearning4j.ui.stats.StatsListener
+import org.deeplearning4j.ui.storage.InMemoryStatsStorage
 import org.deeplearning4j.util.ModelSerializer
 import java.io.File
 import java.util.*
+
 
 fun main(args: Array<String>) {
     if (args.isNotEmpty() && args[0] == "train") {
@@ -22,7 +28,7 @@ fun main(args: Array<String>) {
         val config = SharedConfig(32, 3, 100)
         val trainer = CifarTrainer(config)
         var model = trainer.createModel(seed, iterations, numLabels)
-        model = trainer.train(model, numSamples, numEpochs)
+        model = trainer.train(model, numSamples, numEpochs, getVisualization(args.getOrNull(2)))
 
         if (args[1].isNotEmpty()) {
             println("Saving model to ${args[1]}")
@@ -33,7 +39,7 @@ fun main(args: Array<String>) {
         println(eval.stats())
 
     } else {
-        predict(args[1], args[0])
+        predict(args[0], args[1])
     }
 }
 
@@ -57,4 +63,23 @@ fun predict(modelFile: String, imageFile: String) {
     val reshapedImage = image.reshape(1, 3, 32, 32)
     val result = model.predict(reshapedImage)
     println(result.joinToString(", ", prefix = "[", postfix = "]"))
+}
+
+private fun getVisualization(visualization: String?): IterationListener {
+    return when (visualization) {
+        "web" -> {
+            //Initialize the user interface backend
+            val uiServer = UIServer.getInstance()
+
+            //Configure where the network information (gradients, score vs. time etc) is to be stored. Here: store in memory.
+            val statsStorage = InMemoryStatsStorage()         //Alternative: new FileStatsStorage(File), for saving and loading later
+
+            //Attach the StatsStorage instance to the UI: this allows the contents of the StatsStorage to be visualized
+            uiServer.attach(statsStorage)
+
+            //Then add the StatsListener to collect this information from the network, as it trains
+            StatsListener(statsStorage)
+        }
+        else -> ScoreIterationListener(50)
+    }
 }

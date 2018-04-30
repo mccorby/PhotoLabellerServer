@@ -12,6 +12,7 @@ dependencies {
     implementation nd4j
     implementation dl4j_core
     implementation dl4j_nlp
+    implementation dl4j_ui
     implementation datavec
     implementation slf4j
     implementation jackson

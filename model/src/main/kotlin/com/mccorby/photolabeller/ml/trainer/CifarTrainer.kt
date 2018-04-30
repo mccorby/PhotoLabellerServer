@@ -12,6 +12,7 @@ import org.deeplearning4j.nn.conf.inputs.InputType
 import org.deeplearning4j.nn.conf.layers.*
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork
 import org.deeplearning4j.nn.weights.WeightInit
+import org.deeplearning4j.optimize.api.IterationListener
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener
 import org.deeplearning4j.util.ModelSerializer
 import org.nd4j.linalg.activations.Activation
@@ -62,13 +63,11 @@ class CifarTrainer(private val config: SharedConfig) {
                 .setInputType(InputType.convolutional(config.imageSize, config.imageSize, config.channels))
                 .build()
 
-        val model = MultiLayerNetwork(modelConf)
-        model.init()
-        return model
+        return MultiLayerNetwork(modelConf).also { it.init() }
     }
 
-    fun train(model: MultiLayerNetwork, numSamples: Int, epochs: Int): MultiLayerNetwork {
-        model.setListeners(ScoreIterationListener(50))
+    fun train(model: MultiLayerNetwork, numSamples: Int, epochs: Int, scoreListener: IterationListener): MultiLayerNetwork {
+        model.setListeners(scoreListener)
         val cifar = CifarDataSetIterator(config.batchSize, numSamples,
                 intArrayOf(config.imageSize, config.imageSize, config.channels),
                 CifarLoader.NUM_LABELS,

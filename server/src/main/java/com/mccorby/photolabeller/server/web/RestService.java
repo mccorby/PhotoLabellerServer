@@ -44,6 +44,9 @@ public class RestService {
 
             federatedServer = FederatedServerImpl.Companion.getInstance();
             federatedServer.initialise(repository, updatesStrategy, roundController, logger, properties);
+
+            // We're starting a new round when the server starts
+            roundController.startRound();
         }
     }
 

@@ -17,6 +17,7 @@ ext {
     nd4j = "org.nd4j:nd4j-native-platform:$nd4j_version"
     dl4j_core = "org.deeplearning4j:deeplearning4j-core:$dl4j_version"
     dl4j_nlp = "org.deeplearning4j:deeplearning4j-nlp:$dl4j_version"
+    dl4j_ui = "org.deeplearning4j:deeplearning4j-ui_2.11:${dl4j_version}"
     datavec = "org.datavec:datavec-data-codec:$datavec_version"
     slf4j = "org.slf4j:slf4j-simple:$slf4j_version"
     mockito = "com.nhaarman:mockito-kotlin:$kotlin_mockito_version"
