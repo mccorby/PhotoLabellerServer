@@ -1,5 +1,5 @@
 ext {
-    kotlin_version = "1.2.31"
+    kotlin_version = "1.2.41"
     nd4j_version = "0.8.0"
     dl4j_version = "0.8.0"
     datavec_version = "0.8.0"
