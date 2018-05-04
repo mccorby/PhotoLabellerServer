@@ -39,14 +39,16 @@ To check that the server is up and running in your local installation, hit this 
 
 ```http://localhost:9997/service/federatedservice/available```
 
-### Flow of a open round
+### Flow of an open round
 * Client update is received
+
 When a client sends the update to the model, this is stored by the server in the current round directory
 
 The update is also cached in memory to help with the post process
 
 
 * Closing the round and updating the model
+
 A training round can be closed by reaching the minimum number of clients updates or by timing out
 
 Once the round is closed, the updates are processed by using the `UpdatesStrategy` injected in the server. The current implementation of this strategy performs a `Federated Averaging`
