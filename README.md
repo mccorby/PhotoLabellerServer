@@ -11,6 +11,21 @@ The server is in charge of the following tasks:
 ## Installation instructions
 Use IntelliJ to build the project
 
+The server expects a `local.properties` file to provide some information
+
+Example: 
+
+```python
+model_dir = some_directory_in_your_local_machine
+# In milliseconds. 24 hours
+time_window = 86400000
+min_updates = 1000
+layer_index = 3
+
+```
+
+This file must be located in the `server` module at the same level as the `build.gradle` file 
+
 ## Training the initial model and testing it
 To run the initial model training, use the [`Main.kt`](https://github.com/mccorby/PhotoLabellerServer/blob/master/model/src/main/kotlin/com/mccorby/photolabeller/ml/Main.kt) file
 
