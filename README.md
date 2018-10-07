@@ -55,6 +55,19 @@ To check that the server is up and running in your local installation, hit this 
 ```http://localhost:9997/service/federatedservice/available```
 
 ### Flow of an open round
+* Make sure the server has opened a new round. This can be checked at 
+```http://localhost:9997/service/federatedservice/currentRound```
+If the round is not opened yet, this service will create a new one with the following JSON format
+
+
+```
+{
+    "modelVersion": "round_20181007_080305",
+    "startDate": 1538895785617,
+    "endDate": 1538982185617,
+    "minUpdates": 1000
+}
+```
 * Client update is received
 
 When a client sends the update to the model, this is stored by the server in the current round directory
